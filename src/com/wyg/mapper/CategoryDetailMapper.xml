@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.CategoryDetailMapper">
+    <resultMap id="CategoryDetailResult" type="CategoryDetail">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+    </resultMap>
+    
+     <resultMap type="CategoryDetail" id="CategoryDetailWithCateory" extends="CategoryDetailResult"> 
+		  <result property="category.id" column="id" /> 
+		  <result property="category.name" column="name" /> 
+	</resultMap>
+    
+    <!-- 找到所有小类型List -->
+	<select id="getAllConcretype" resultMap="CategoryDetailWithCateory"> 
+		select * from d_category_detail
+		</select>
+	<!-- 通过大id查小id和小name -->
+		<select id="getConcretypeById"	parameterType="int" resultMap="CategoryDetailWithCateory">
+	select id,name from d_category_detail where category_id=#{id}
+		</select>
+	<!-- 通过小类型id查小类型名字 -->
+	<select id="getDetailName"	parameterType="Long" resultType="String">
+	select name from d_category_detail where id=#{id}
+		</select>
+	<!-- 通过小id查大id -->
+	<select id="getTypeIdbyDetailId" parameterType="Long" resultType="Long">
+	select category_id from d_category_detail where id=#{id}
+		</select>
+	
+	
+</mapper>

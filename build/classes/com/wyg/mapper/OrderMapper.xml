@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.OrderMapper">
+    <resultMap id="OrderResult" type="Order">
+        <id property="id" column="id" />
+        <result property="num" column="num" />
+        <result property="start_date" column="start_date" />
+        <result property="sum_price" column="sum_price" /> 
+        <result property="status" column="status" /> 
+        <result property="sum_price" column="sum_price" /> 
+        <association property="payway" column="payway_id"  select="findPayWayById"></association>
+        <association property="user" column="user_id"  select="findUserById"></association>
+        <association property="receiver" column="receiver_id"  select="findReceiverById"></association>
+    </resultMap>
+    
+    
+    <resultMap type="Order" id="OrderWithUser" extends="OrderResult"> 
+    	<result property="user.id" column="id" />
+		<result property="user.name" column="name" />
+        <result property="user.password" column="password" />
+        <result property="user.zip" column="zip" />
+        <result property="user.address" column="address" />
+        <result property="user.phone" column="phone" /> 
+        <result property="user.email" column="email" />
+	</resultMap>
+	
+	<resultMap type="Order" id="OrderWithUserAndReceiver" extends="OrderWithUser"> 
+    	<result property="receiver.id" column="id" />
+		<result property="receiver.name" column="name" />
+        <result property="receiver.address" column="address" />
+        <result property="receiver.phone" column="phone" /> 
+	</resultMap>
+    
+    <resultMap type="Order" id="OrderFinal" extends="OrderWithUserAndReceiver"> 
+    	<result property="payway.id" column="id" />
+		<result property="payway.pay_style" column="pay_style" />
+        <result property="payway.images" column="images" />
+	</resultMap>
+    
+	<insert id="insertOrder" parameterType="Order">
+	     <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+	        select d_order_seq.nextval from dual
+	    </selectKey>
+	    insert into d_order values(#{id},#{id},#{start_date},#{sum_price},#{payway.id},#{status},#{user.id},#{receiver.id})
+	    
+	</insert>
+	
+	<select id="findUserById" parameterType="Long" resultType="User">
+		select * from d_user where id=#{id}
+	</select>
+	
+	<select id="findPayWayById" parameterType="Long" resultType="Payway">
+		select * from d_payway where id=#{id}
+	</select>
+	
+	<select id="findReceiverById" parameterType="Long" resultType="Receiver">
+		select * from d_receiver where id=#{id}
+	</select>
+	
+	<select id="findOrderByUserId" parameterType="Long" resultMap="OrderFinal">
+			SELECT * FROM D_Order WHERE user_id=#{user.id}
+		</select>
+		
+	<select id="findOrderByOrderId" parameterType="Long" resultMap="OrderFinal">
+			SELECT * FROM D_Order WHERE id=#{id}
+		</select>
+		
+	<select id="getCurrentiId" resultType="int">
+			SELECT d_order_seq.currval from dual
+		</select>
+		
+	<update id="updateOrderById" parameterType="Order">
+		update d_order set payway_id=#{payway.id},status=#{status} where id=#{id}
+	</update>
+		
+</mapper>

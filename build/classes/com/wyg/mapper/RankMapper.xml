@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.RankMapper">
+    <resultMap id="RankResult" type="Rank">
+        <id property="id" column="id" />
+        <result property="min_price" column="min_price" />
+        <result property="max_price" column="max_price" />
+    </resultMap>
+    
+	<select id="findAllRank" resultType="Rank">
+			SELECT id,min_price,max_price from d_price_rank
+		</select>
+		
+	
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="application.properties" />
+    <typeAliases>
+        <typeAlias alias="User" type="com.wyg.pojo.User" />
+        <typeAlias alias="Category" type="com.wyg.pojo.Category" />
+        <typeAlias alias="CategoryDetail" type="com.wyg.pojo.CategoryDetail" />
+         <typeAlias alias="Product" type="com.wyg.pojo.Product" />
+         <typeAlias alias="Publish" type="com.wyg.pojo.Publish" />
+         <typeAlias alias="Report" type="com.wyg.pojo.Report" />
+         <typeAlias alias="Receiver" type="com.wyg.pojo.Receiver" />
+         <typeAlias alias="Order" type="com.wyg.pojo.Order" />
+         <typeAlias alias="Payway" type="com.wyg.pojo.Payway" />
+         <typeAlias alias="OrderLine" type="com.wyg.pojo.OrderLine" />
+         <typeAlias alias="Rank" type="com.wyg.pojo.PriceRank" />
+          <typeAlias alias="Evaluate" type="com.wyg.pojo.Evaluate" />
+    </typeAliases>
+    <typeHandlers> 
+    <!-- <typeHandler handler = "com.wyg.typehandler.PublishTypeHandler" /> 
+    <typeHandler handler = "com.wyg.typehandler.CategoryDetailTypeHandler" />  -->
+		  </typeHandlers>
+	<environments default="development">
+	    <environment id="development">
+	        <transactionManager type="JDBC" />
+	        <dataSource type="POOLED">
+				<property name="driver" value="${driver}" />	            
+	            <property name="url" value="${url}" />
+	            <property name="username" value="${username}" />
+	            <property name="password" value="${password}" />
+	        </dataSource>
+	    </environment>
+	</environments>
+	<mappers>
+	    <mapper resource="com/wyg/mapper/UserMapper.xml"></mapper>
+	     <mapper resource="com/wyg/mapper/CategoryMapper.xml"></mapper>
+	     <mapper resource="com/wyg/mapper/CategoryDetailMapper.xml"></mapper>
+	     <mapper resource="com/wyg/mapper/ProductMapper.xml"></mapper>
+	     <mapper resource="com/wyg/mapper/PublishMapper.xml"></mapper>
+	     <mapper resource="com/wyg/mapper/ReportMapper.xml"></mapper>
+	      <mapper resource="com/wyg/mapper/ReceiverMapper.xml"></mapper>
+	      <mapper resource="com/wyg/mapper/OrderMapper.xml"></mapper>
+	      <mapper resource="com/wyg/mapper/OrderLineMapper.xml"></mapper>
+	      <mapper resource="com/wyg/mapper/RankMapper.xml"></mapper>
+	      <mapper resource="com/wyg/mapper/EvaluateMapper.xml"></mapper>
+	</mappers>
+</configuration>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.EvaluateMapper">
+    <resultMap id="EvaluateResult" type="Evaluate">
+        <id property="id" column="id" />
+        <result property="images" column="images" />
+        <result property="eva_date" column="eva_date" />
+        <result property="state" column="state" />
+        <result property="content" column="content" />
+        <result property="star" column="star" /> 
+       <association property="user" column="user_id"  select="findUserById"></association> 
+        <association property="product" column="product_id" select="findProductById"></association> 
+    </resultMap>
+    
+    
+     <resultMap type="Evaluate" id="EvaWithUser" extends="EvaluateResult"> 
+		  <result property="user.id" column="id" />
+		<result property="user.name" column="name" />
+        <result property="user.password" column="password" />
+        <result property="user.zip" column="zip" />
+        <result property="user.address" column="address" />
+        <result property="user.phone" column="phone" /> 
+        <result property="user.email" column="email" />
+	</resultMap> 
+	
+	 <resultMap type="Evaluate" id="EvaFinal" extends="EvaWithUser"> 
+	    <result property="product.id" column="id" /> 
+        <result property="product.name" column="name" />
+        <result property="product.price" column="price" />
+        <result property="product.service_fg" column="service_fg" />
+        <result property="product.service_myf" column="service_myf" />
+        <result property="product.service_zt" column="service_zt" /> 
+        <result property="product.service_th" column="service_th" />
+        <result property="product.version" column="version" />
+        <result property="product.stock" column="stock" />
+        <result property="product.description" column="description" />
+        <result property="product.writer" column="writer" />
+        <result property="product.pages" column="pages" />
+        <result property="product.ISBN" column="ISBN" />
+        <result property="product.publish_date" column="publish_date" />
+        <result property="product.feature_images" column="feature_images" />
+        <result property="product.images" column="images" />
+        <result property="product.bill" column="bill" />
+        <result property="product.start_date" column="start_date" />
+        <result property="product.sale_num" column="sale_num" />
+        <result property="product.flag" column="flag" />
+        <result property="product.explain" column="explain" />
+	</resultMap> 
+	
+    
+	<insert id="insertEvaluate" parameterType="Evaluate">
+	 <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+	        select d_evaluate_seq.nextval from dual
+	    </selectKey>
+		INSERT INTO D_EVALUATE(id,images,eva_date,state,content,user_id,product_id,star) VALUES(#{id},#{images},#{eva_date},#{state},#{content},#{user.id},#{product.id},#{star})
+	</insert>	
+	
+	<select id="getUserProEvaluates" resultMap="EvaFinal">
+		SELECT * FROM D_EVALUATE WHERE USER_ID=#{0} AND PRODUCT_ID=#{1}
+	</select>
+	
+	<select id="getuniqueEva" resultMap="EvaFinal">
+		SELECT * FROM D_EVALUATE WHERE USER_ID=#{0} AND PRODUCT_ID=#{1} and eva_date=(
+		SELECT START_DATE FROM D_ORDER WHERE ID=#{2} 
+		)and rownum=1
+	</select>
+	
+	<select id="findUserById" parameterType="Long" resultType="User">
+			SELECT * FROM D_USER WHERE ID=#{id}
+		</select>
+		
+	<select id="findProductById" parameterType="Long" resultType="Product">
+		select * from d_product where id=#{id}
+	</select>
+	
+	<select id="findEvaByProductId" parameterType="Long" resultMap="EvaFinal">
+		select * from d_evaluate where product_id=#{0} and content is not null
+	</select>
+	<update id="updateEva" parameterType="Evaluate"> 
+		update d_evaluate set images=#{images},eva_date=#{eva_date},state=#{state},content=#{content},star=#{star}
+		where user_id=#{user.id} and product_id=#{product.id}
+	</update>
+</mapper>

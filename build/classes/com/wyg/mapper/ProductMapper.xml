@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.ProductMapper">
+    <resultMap id="ProductResult" type="Product">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="price" column="price" />
+        <result property="service_fg" column="service_fg" />
+        <result property="service_myf" column="service_myf" />
+        <result property="service_zt" column="service_zt" /> 
+        <result property="service_th" column="service_th" />
+        <result property="version" column="version" />
+        <result property="stock" column="stock" />
+        <result property="description" column="description" />
+        <result property="writer" column="writer" />
+        <result property="pages" column="pages" />
+        <result property="ISBN" column="ISBN" />
+        <result property="publish_date" column="publish_date" />
+        <result property="feature_images" column="feature_images" />
+        <result property="images" column="images" />
+        <result property="bill" column="bill" />
+        <result property="start_date" column="start_date" />
+        <result property="sale_num" column="sale_num" />
+        <result property="flag" column="flag" />
+        <result property="explain" column="explain" />
+        <!--  <result property="cate_detail" column="cat_detail_id" typeHandler="com.wyg.typehandler.CategoryDetailTypeHandler" />
+        <result property="publish" column="publish_id" typeHandler="com.wyg.typehandler.PublishTypeHandler" /> -->
+        <association property="publish" column="publish_id" select="findPublishById"></association>
+        <association property="cate_detail" column="cat_detail_id" select="findCatedetailById"></association>
+    </resultMap>
+    
+     <resultMap type="Product" id="ProductWithCategoryDetail" extends="ProductResult"> 
+		  <result property="cate_detail.id" column="id" /> 
+		  <result property="cate_detail.name" column="name" /> 
+	</resultMap>
+	
+	<resultMap type="Product" id="ProductWithCategoryDetailAndPublish" extends="ProductWithCategoryDetail"> 
+		  <result property="publish.id" column="id" /> 
+		  <result property="publish.name" column="name" /> 
+	</resultMap>
+	
+	
+	
+	<resultMap id="CategoryDetailResult" type="CategoryDetail">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+    </resultMap>
+    
+    <!-- 查询语句 -->
+    <select id="findPublishById" resultType="Publish">
+			SELECT * FROM d_PUBLISH where id=#{id}
+		</select>
+    
+    <select id="findCatedetailById" parameterType="Long" resultType="CategoryDetail">
+	select * from d_category_detail where id=#{id}
+		</select>
+		
+	<select id="getHotProducts" resultMap="ProductWithCategoryDetailAndPublish">
+			SELECT * FROM D_PRODUCT WHERE FLAG=-1
+		</select>
+		
+		
+	<select id="getProductsByCategoryId" parameterType="Long"  resultMap="ProductWithCategoryDetailAndPublish">
+			SELECT * FROM D_PRODUCT WHERE CAT_DETAIL_ID IN(SELECT D.ID FROM D_CATEGORY C,D_CATEGORY_DETAIL D WHERE 
+			C.ID=D.CATEGORY_ID AND c.ID=#{c.id})
+		</select>
+	
+	
+	<select id="getProductsByDetailId" parameterType="Long" resultMap="ProductWithCategoryDetailAndPublish">
+			SELECT * FROM D_PRODUCT P,D_CATEGORY_DETAIL D WHERE P.CAT_DETAIL_ID=D.ID AND CAT_DETAIL_ID=#{D.ID}
+		</select>
+		
+	<select id="getProductsByPublishId" resultMap="ProductWithCategoryDetailAndPublish">
+			SELECT * FROM D_PRODUCT WHERE PUBLISH_ID=#{PUBLISH_ID}
+		</select>
+		
+	<select id="getHotSalesProducts" resultMap="ProductWithCategoryDetailAndPublish">
+			SELECT * FROM D_PRODUCT WHERE FLAG=1
+		</select>
+		<!-- 通过id筛选 -->
+	<select id="getProductsByPriceODID" parameterType="Long" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			ORDER BY ID
+		</select>
+		
+		<select id="getProductsByPriceODSA" parameterType="Long" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			ORDER BY SALE_NUM
+		</select>
+		
+		<select id="getProductsByPriceODPR" parameterType="Long" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			ORDER BY J_PRICE
+		</select>
+		
+		<select id="getProductsByPriceODST" parameterType="Long" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{ID}
+			)
+			ORDER BY START_DATE
+		</select>
+	<!-- 通过publish筛选 -->	
+	<select id="getProductsByNewPublishODID" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE PUBLISH_ID=#{0} order by id
+		</select>
+		
+		<select id="getProductsByNewPublishODSA" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE PUBLISH_ID=#{0} order by SALE_NUM
+		</select>
+		
+		<select id="getProductsByNewPublishODPR" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE PUBLISH_ID=#{0} order by J_PRICE
+		</select>
+		
+		<select id="getProductsByNewPublishODST" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE PUBLISH_ID=#{0} order by START_DATE
+		</select>
+		<!-- 两个条件共同筛选 -->
+	<select id="getProductsByPriceAndPublishODID" resultType="Product">
+		SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND
+			PUBLISH_ID=#{1}
+	</select>
+	
+	<select id="getProductsByPriceAndPublishODSA" resultType="Product">
+		SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND
+			PUBLISH_ID=#{1}
+			
+			ORDER BY SALE_NUM
+	</select>
+	
+	<select id="getProductsByPriceAndPublishODPR" resultType="Product">
+		SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND
+			PUBLISH_ID=#{1}
+			
+			ORDER BY J_PRICE
+	</select>
+	
+	<select id="getProductsByPriceAndPublishODST" resultType="Product">
+		SELECT * FROM D_PRODUCT WHERE J_PRICE>
+			(
+				SELECT MIN_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND J_PRICE&lt;
+			(
+				SELECT MAX_PRICE FROM D_PRICE_RANK WHERE ID=#{0}
+			)
+			AND
+			PUBLISH_ID=#{1}
+			
+			ORDER BY START_DATE
+	</select>
+	<select id="getProductsById" parameterType="Long" resultMap="ProductWithCategoryDetailAndPublish">
+			 SELECT * FROM D_PRODUCT PRO,D_CATEGORY_DETAIL DET WHERE 
+		    PRO.CAT_DETAIL_ID=DET.ID AND PRO.ID=#{id} 
+		   <!--  select * from d_product where id=#{id} -->
+		</select>
+		
+	<select id="getProductsBySaleNum" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE SALE_NUM=1
+		</select>
+		
+	<select id="getProductsByStartTime" resultType="Product">
+			SELECT * FROM D_PRODUCT WHERE SALE_NUM=1
+		</select>	
+		
+	<update id="updateStock" parameterType="Product">
+		update d_product set stock=#{stock} where id=#{id}
+	</update>
+	
+	<update id="updatesalenum" parameterType="Product">
+		update d_product set sale_num=#{sale_num} where id=#{id}
+	</update>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.CategoryMapper">
+    <resultMap id="CategoryResult" type="Category">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+    </resultMap>
+    
+	<select id="findAlltype" resultType="Category">
+	select * from d_category
+		</select>
+	<select id="getCategoryName"  parameterType="Long" resultType="String">
+	select name from d_category where id=#{id}
+		</select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyg.mapper.OrderLineMapper">
+    <resultMap id="OrderLineResult" type="OrderLine">
+        <id property="id" column="id" />
+        <result property="amount" column="amount" />
+        <result property="single_price" column="single_price" />
+        <result property="product_version" column="product_version" /> 
+        <association property="order" column="order_id"  select="findOrderById"></association>
+        <association property="product" column="product_id"  select="findProductById"></association>
+    </resultMap>
+    
+    
+    <resultMap type="OrderLine" id="OrderLineWithOrder" extends="OrderLineResult"> 
+    	<result property="order.id" column="id" />
+		<result property="order.num" column="num" />
+        <result property="order.start_date" column="start_date" />
+        <result property="order.sum_price" column="sum_price" />
+        <result property="order.status" column="status" />
+	</resultMap>
+	
+	<resultMap type="OrderLine" id="OrderLineFinal" extends="OrderLineWithOrder"> 
+        <result property="product.id" column="id" /> 
+	</resultMap>
+    
+	<insert id="insertOrderLine" parameterType="OrderLine">
+	     <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+	        select d_orderline_seq.nextval from dual
+	    </selectKey>
+	    insert into d_orderline values(#{id},#{amount},#{single_price},#{product_version},#{order.id},#{product.id})
+	</insert>
+	
+	<select id="findOrderById" parameterType="Long" resultType="Order">
+		select * from d_order where id=#{id}
+	</select>
+	
+	<select id="findProductById" parameterType="Long" resultType="Product">
+		select * from d_product where id=#{id}
+	</select>
+	
+	
+	<select id="findOrderLineByOrderId" parameterType="Long" resultMap="OrderLineFinal">
+			SELECT * FROM D_ORDERLINE WHERE order_id=#{order.id}
+		</select>
+		
+</mapper>
